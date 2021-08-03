@@ -3,6 +3,10 @@ import './visWidgetConfig.css';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { getPaperById } from '../network/networkRequests';
+import axios from 'axios';
+
+var doi_pdf = "";
+var doi_url = "";
 
 class ExampleB extends Component {
     constructor(props) {
@@ -15,6 +19,13 @@ class ExampleB extends Component {
     componentDidMount() {
         // fetch data
         this.getData();
+        axios.get(`https://api.crossref.org/works/10.1145/3360901.3364435`)
+            .then(res => {
+                const data = res.data;
+                doi_pdf = data.message.link[0].URL;
+                doi_url = data.message.URL;
+                console.log(doi_pdf)
+            })
     }
 
     getData = () => {
@@ -45,8 +56,9 @@ class ExampleB extends Component {
                             return item.object.label + '; ';
                         })}
                     </div>
-                    <div>Paper Data:</div>
-                    <div>Paper doi: {doiValue}</div>
+
+                    <div>Paper Data: <a href={doi_pdf}>PDF</a> </div>
+                    <div>Paper doi: <a href={doi_url}>{doiValue}</a> </div>
                 </div>
             );
         }
@@ -73,9 +85,8 @@ class ExampleB extends Component {
                     )}
                     {!this.state.loading && this.renderData()}
                 </div>
-            </div>
+    </div>
         );
     }
 }
-
 export default ExampleB;

@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
 import './visWidgetConfig.css';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { getComparisonById } from 'network/networkRequests';
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { getComparisonById } from "network/networkRequests";
+import { Table } from 'reactstrap';
+import { isUri } from 'valid-url';
+import ReactReadMoreReadLess from "react-read-more-read-less";
+
+const paperLink = "https://www.orkg.org/orkg/paper/";
 
 class ExampleA extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: true,
-            requestedData: null
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: true,
+      requestedData: null
         };
     }
 
@@ -42,7 +47,7 @@ class ExampleA extends Component {
                         {authorStatements.map(item => {
                             return item.object.label + '; ';
                         })}
-                    </div>
+                </div>
                     <div>Comparison Data:</div>
                     {this.renderComparisonTable()}
                 </div>
@@ -53,36 +58,18 @@ class ExampleA extends Component {
     renderComparisonTable = () => {
         const dataFrame = this.state.requestedData.comparisonData;
         return (
-            <table style={{ width: '100%', overflow: 'auto', display: 'block' }}>
+            <Table striped bordered hover responsive>
                 {/*  define headers*/}
-                <thead style={{ borderTop: '1px solid black', borderBottom: '1px solid black' }}>
+                <thead>
                     <tr>
-                        <th
-                            style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                borderRight: '1px solid black',
-                                borderLeft: '1px solid black',
-                                padding: '3px'
-                            }}
-                        >
+                        <th>
                             Contribution
                         </th>
                         {dataFrame.properties
                             .filter(property => property.active === true)
                             .map(property => {
                                 return (
-                                    <th
-                                        key={property.label}
-                                        style={{
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            borderRight: '1px solid black',
-                                            padding: '3px'
-                                        }}
-                                    >
+                                    <th>
                                         {property.label}
                                     </th>
                                 );
@@ -94,30 +81,23 @@ class ExampleA extends Component {
                         return (
                             <tr key={'tr_id' + id} style={{ border: '1px solid black', borderTop: 'none' }}>
                                 <td
-                                    key={'td_id_' + id}
-                                    style={{
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        borderRight: '1px solid black',
-                                        borderLeft: '1px solid black',
-                                        padding: '3px',
-                                        maxWidth: '200px'
-                                    }}
-                                >
-                                    {dataFrame.contributions[id].contributionLabel +
-                                        '(' +
-                                        dataFrame.contributions[id].id +
-                                        '/' +
-                                        dataFrame.contributions[id].paperId +
-                                        ')'}
+                                    key={'td_id_' + id}>
+                                    {dataFrame.contributions[id].contributionLabel}
+                                    <><br /></>(<a href={paperLink +
+                                dataFrame.contributions[id].paperId +
+                                    '/' +
+                                dataFrame.contributions[id].id} target={"_blank"}>{
+                                    dataFrame.contributions[id].paperId +
+                                    '/' +
+                                    dataFrame.contributions[id].id
+                                }</a>)
                                 </td>
                                 {this.createRows(id)}
                             </tr>
                         );
                     })}
                 </tbody>
-            </table>
+                </Table>
         );
     };
 
@@ -129,18 +109,28 @@ class ExampleA extends Component {
             const dataValues = dataFrame.data[property.id][rowId];
             return (
                 <td
-                    key={'td_id' + rowId + '_' + property.id}
-                    style={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        borderRight: '1px solid black',
-                        padding: '3px',
-                        maxWidth: '200px'
-                    }}
-                >
+                    key={'td_id' + rowId + '_' + property.id} >
                     {dataValues.map(val => {
-                        return val.label + ' ';
+                        if (val.label)
+                        {
+                            if (isUri(val.label))
+                            {
+                                var sub = onlyDomain(val.label);
+                                return <><a href={val.label} target={"_blank"}>►{sub} </a><br /></>;
+                            }
+                            else
+                            {
+                                return <><ReactReadMoreReadLess
+                                    charLimit={30}
+                                    readMoreText=<a href="#">{"Read more ▼"}</a>
+                                    readLessText=<a href="#">{"Read less ▲"}</a>
+                                >
+                                    {val.label}
+                                </ReactReadMoreReadLess></>
+                            }
+                        }
+                        else
+                            return val.label + ' ';
                     })}
                 </td>
             );
@@ -172,5 +162,11 @@ class ExampleA extends Component {
         );
     }
 }
-
+//-------OnlyDomain function--------
+function onlyDomain(url){
+    var a = document.createElement('a');
+    a.href = url;
+    var s = a.hostname.split('.'), d = s.length-2;
+    return s[d]+'.'+s[d+1];
+}
 export default ExampleA;

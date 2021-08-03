@@ -18,15 +18,14 @@ class App extends Component {
     render() {
         return (
             <>
-               
                 <Container fluid noGutters>
                     <Container
                         style={{
-                            backgroundColor: '#9c9c9c',
-                            marginLeft: '10%',
-                            marginRight: '10%',
-                            maxWidth: '80%',
-                            height: 'calc(100vh - 40px)',
+                            backgroundColor: '#aaa',
+                            marginLeft: '0%',
+                            marginRight: '0%',
+                            maxWidth: '100%',
+                            height: 'calc(100vh - 1px)',
                             overflow: 'auto'
                         }}
                     >
